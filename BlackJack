@@ -1,0 +1,289 @@
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
+
+
+int[,] deck = new int[4,13];
+
+for (int i = 0; i < 4; i++)
+{
+    for (int j = 0; j < 13; j++)
+    {
+        deck[i,j] = j;
+    }
+}
+
+
+Console.WriteLine("deck created");
+/* 
+A = 0
+2 = 1
+3 = 2
+4 = 3
+5 = 4
+6 = 5
+7 = 6
+8 = 7
+9 = 8
+10 = 9
+J = 10
+Q = 11
+K = 12
+
+Spade = 0
+Heart = 1
+Club = 2
+Diamond = 3
+
+deck[0,3] is Spade 4
+*/
+
+
+Random rnd = new Random();
+
+
+int pickCard()
+{
+    int suit;
+    int index;
+    int cardValue;
+
+    do
+    {
+    suit = rnd.Next(0,4);
+    index = rnd.Next(0,12);
+    cardValue = deck[suit,index];
+    }
+    while(cardValue == 13);
+    
+    cardValue += 1;
+    if (cardValue > 10)
+    {
+        cardValue = 10;
+    }
+    deck[suit,index] = 13;
+    return cardValue;
+}
+
+int[,] shown = new int[2,10];
+
+bool checkP21()
+{
+    int handSizeP = 0;
+    for (int m = 0; m < 10; m++)
+    {
+        handSizeP += shown[0,m];
+    }
+    return handSizeP == 21;
+
+}
+
+bool checkPBust()
+{
+    int handSizeP = 0;
+    for (int m = 0; m < 10; m++)
+    {
+        handSizeP += shown[0,m];
+    }
+    return handSizeP > 21;
+}
+
+bool checkH21()
+{
+    int handSizeH = 0;
+    for (int m = 0; m < 10; m++)
+    {
+        handSizeH += shown[1,m];
+    }
+    return handSizeH == 21;
+
+}
+bool checkHBust()
+{
+    int handSizeH = 0;
+    for (int m = 0; m < 10; m++)
+    {
+        handSizeH += shown[1,m];
+    }
+    return handSizeH > 21;
+
+}
+
+
+void Game()
+{
+    shown = new int[2,10]{{0,0,0,0,0,0,0,0,0,0},{0,0,0,0,0,0,0,0,0,0}};
+    Console.WriteLine(shown[0,3]);
+    for (int p = 0; p < 2; p++)
+    {
+        for (int k = 0; k < 2; k++)
+        {
+            shown[k,p] = pickCard();
+        }
+        if (p != 1)
+        {
+            Console.WriteLine($"\nPlayer card: {shown[0,p]}, House card: {shown[1,p]}");
+        }
+        else
+        {
+            Console.WriteLine($"Player card: {shown[0,p]}, House card: ???");
+        }
+    }
+    int startPlayer = shown[0,0] + shown[0,1];
+    Console.WriteLine("Your sum: " + startPlayer);
+    Console.WriteLine(shown[0,3]);
+
+    int cardP = 2;
+    while (true)
+    {
+        Console.WriteLine("\nType 'hit' to get another card, type 'stand' to continue");
+        string action = Console.ReadLine();
+        if (action == "stand")
+        {
+            int tstV1 = 0;
+            for (int m = 0; m < 10; m++)
+            {
+                tstV1 += shown[0,m];
+            }
+            Console.WriteLine("\ntest1: " + tstV1);
+            break;
+        }
+        if (action == "hit")
+        {
+            shown[0,cardP] = pickCard();
+            int handV = 0;
+            Console.Write("\nYour cards: ");
+            for (int d = 0; d < cardP + 1; d++)
+            {
+                handV += shown[0,d];
+                Console.Write($"{shown[0,d]} ");
+            }
+            Console.Write($"\nYour sum: {handV} ");
+            if (checkP21())
+            {
+                Console.WriteLine("\nYOU GOT 21!");
+                break;
+            }
+            if (checkPBust())
+            {
+                Console.WriteLine("\nYOU BUST!");
+                break;
+            }
+            cardP += 1;
+        }
+        
+    }
+    int tstV2 = 0;
+    for (int m = 0; m < 10; m++)
+    {
+        tstV2 += shown[0,m];
+    }
+    Console.WriteLine("\ntest2: " + tstV2);
+    int tstV3 = 0;
+    for (int m = 0; m < 10; m++)
+    {
+        tstV3 += shown[0,m];
+        Console.WriteLine("\ntest3: " + tstV3);
+        Console.WriteLine(shown[0,m]);
+    }
+    
+    if (checkPBust())
+    {
+        return;
+    }
+    Console.WriteLine($"\nHouse card: {shown[1,0]}");
+    Console.WriteLine($"Secret house card: {shown[1,1]}");
+    int startHouse = shown[1,0] + shown[1,1];
+    Console.WriteLine("House sum: " + startHouse);
+    
+    if (checkH21() && shown[0,0] + shown[0,1] != 21)
+    {
+        Console.WriteLine("YOU LOSE!");
+        return;
+    }
+    if (checkH21() == false && shown[0,0] + shown[0,1] == 21)
+    {
+        Console.WriteLine("YOU WIN!");
+        return;
+    }
+
+    bool winStatus = false;
+    int houseHand = startHouse;
+    int cardH = 2;
+    while(houseHand < 17)
+    {
+        shown[1,cardH] = pickCard();
+        Console.WriteLine("\nHouse draws: " + shown[1,cardH]);
+        houseHand += shown[1,cardH];
+        Console.WriteLine("House sum: " + houseHand);
+        if (checkH21() && checkP21() == false)
+        {
+            Console.WriteLine("YOU LOSE!");
+            winStatus = true;
+            break;
+        }
+        if (checkH21() && checkP21())
+        {
+            Console.WriteLine("YOU TIE!");
+            winStatus = true;
+            break;
+        }
+        if (checkHBust())
+        {
+            Console.WriteLine("YOU WIN!");
+            winStatus = true;
+            break;
+        }
+        cardH += 1;
+
+    }
+    
+    if (winStatus)
+    {
+        return;
+    }
+    
+    int Psum = 0;
+    int Hsum = 0;
+    for (int v = 0; v < 10; v++)
+    {
+        Psum += shown[0,v];
+    }
+    for (int l = 0; l < 10; l++)
+    {
+        Hsum += shown[1,l];
+    }
+
+    if (Psum > Hsum)
+    {
+        Console.WriteLine("YOU WIN!");
+    }
+    if (Psum == Hsum)
+    {
+        Console.WriteLine("YOU TIE!");
+    }
+    if (Psum < Hsum)
+    {
+        Console.WriteLine("YOU LOSE!");
+    }
+
+    return;
+/*
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 13; j++)
+        {
+            Console.WriteLine(deck[i,j]);
+        }
+    }
+*/
+}
+
+while (true)
+{
+    Console.WriteLine("\nPress enter to play");
+    string Play = Console.ReadLine();
+    if (Play == "")
+    {
+        Game();
+    }
+}
