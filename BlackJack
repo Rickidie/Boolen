@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Security.AccessControl;
 using System.Security.Cryptography.X509Certificates;
 
 
@@ -112,7 +113,7 @@ bool checkHBust()
 void Game()
 {
     shown = new int[2,10]{{0,0,0,0,0,0,0,0,0,0},{0,0,0,0,0,0,0,0,0,0}};
-    Console.WriteLine(shown[0,3]);
+    //Console.WriteLine(shown[0,3]);
     for (int p = 0; p < 2; p++)
     {
         for (int k = 0; k < 2; k++)
@@ -121,16 +122,43 @@ void Game()
         }
         if (p != 1)
         {
-            Console.WriteLine($"\nPlayer card: {shown[0,p]}, House card: {shown[1,p]}");
+            if (shown[0,p] == 1 && shown[1,p] == 1)
+            {
+                int aceP = shown[0,p] + 10;
+                int aceH = shown[1,p] + 10;
+                Console.WriteLine($"\nPlayer card: {shown[0,p]} / {aceP}, House card: {shown[1,p]} / {aceH}");
+            }
+            else if (shown[0,p] == 1)
+            {
+                int aceP = shown[0,p] + 10;
+                Console.WriteLine($"\nPlayer card: {shown[0,p]}  / {aceP}, House card: {shown[1,p]}");
+            }
+            else if (shown[1,p] == 1)
+            {
+                int aceH = shown[1,p] + 10;
+                Console.WriteLine($"\nPlayer card: {shown[0,p]}, House card: {shown[1,p]} / {aceH}");
+            }
+            else
+            {
+                Console.WriteLine($"\nPlayer card: {shown[0,p]}, House card: {shown[1,p]}");
+            }
         }
         else
         {
-            Console.WriteLine($"Player card: {shown[0,p]}, House card: ???");
+            if (shown[0,p] == 1)
+            {
+                int aceP = shown[0,p] + 10;
+                Console.WriteLine($"\nPlayer card: {shown[0,p]} / {aceP}, House card: ???");
+            }
+            else
+            {
+                Console.WriteLine($"Player card: {shown[0,p]}, House card: ???");
+            }
         }
     }
     int startPlayer = shown[0,0] + shown[0,1];
     Console.WriteLine("Your sum: " + startPlayer);
-    Console.WriteLine(shown[0,3]);
+    //Console.WriteLine(shown[0,3]);
 
     int cardP = 2;
     while (true)
@@ -144,7 +172,7 @@ void Game()
             {
                 tstV1 += shown[0,m];
             }
-            Console.WriteLine("\ntest1: " + tstV1);
+            Console.WriteLine("\nYour sum: " + tstV1);
             break;
         }
         if (action == "hit")
@@ -172,6 +200,7 @@ void Game()
         }
         
     }
+    /*
     int tstV2 = 0;
     for (int m = 0; m < 10; m++)
     {
@@ -185,7 +214,7 @@ void Game()
         Console.WriteLine("\ntest3: " + tstV3);
         Console.WriteLine(shown[0,m]);
     }
-    
+    */
     if (checkPBust())
     {
         return;
